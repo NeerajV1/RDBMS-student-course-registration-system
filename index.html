@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Student Portal</title>
+    <style>
+        body { font-family: sans-serif; background: #f4f4f4; display: flex; justify-content: center; padding: 50px; }
+        .card { background: white; padding: 20px; border-radius: 8px; shadow: 0 2px 10px rgba(0,0,0,0.1); width: 300px; }
+        input { width: 90%; padding: 10px; margin: 10px 0; border: 1px solid #ddd; }
+        button { width: 100%; padding: 10px; background: #28a745; color: white; border: none; cursor: pointer; }
+    </style>
+</head>
+<body>
+    <div class="card" id="auth-container">
+        <h2 id="title">Login</h2>
+        <input type="email" id="email" placeholder="Email">
+        <input type="password" id="password" placeholder="Password">
+        <div id="reg-fields" style="display:none;">
+            <input type="text" id="phone" placeholder="Phone No">
+            <input type="number" id="semester" placeholder="Semester">
+            <input type="date" id="dob">
+        </div>
+        <button onclick="handleAction()" id="btn">Login</button>
+        <p onclick="toggleMode()" style="color:blue; cursor:pointer; text-align:center;">Switch to Register</p>
+    </div>
+
+    <script>
+        let isLogin = true;
+        const API = "http://127.0.0.1:8000";
+
+        function toggleMode() {
+            isLogin = !isLogin;
+            document.getElementById('title').innerText = isLogin ? "Login" : "Register";
+            document.getElementById('btn').innerText = isLogin ? "Login" : "Register";
+            document.getElementById('reg-fields').style.display = isLogin ? "none" : "block";
+        }
+
+        async function handleAction() {
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+
+            if (isLogin) {
+                const res = await fetch(`${API}/login`, {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({ email, password })
+                });
+                const data = await res.json();
+                alert(data.message || data.detail);
+            } else {
+                const body = {
+                    email, password,
+                    phoneno: document.getElementById('phone').value,
+                    semester: parseInt(document.getElementById('semester').value),
+                    dob: document.getElementById('dob').value
+                };
+                const res = await fetch(`${API}/register`, {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify(body)
+                });
+                alert("Registered! Now please login.");
+                toggleMode();
+            }
+        }
+    </script>
+</body>
+</html>
